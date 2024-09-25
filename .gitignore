@@ -1,0 +1,11 @@
+﻿MessageSendApi/bin/
+MessageSendApi/.env
+MessageSendApi/Migrations/
+MessageSendApi/appsettings.Development.json
+MessageSendApi/.vs/
+MessageSendApi/obj/
+
+
+MessageSendApp/bin/
+MessageSendApp/.vs/
+MessageSendApp/obj/

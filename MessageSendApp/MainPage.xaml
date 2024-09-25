@@ -1,0 +1,58 @@
+﻿<Page
+    x:Class="MessageSendApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MessageSendApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="LightBlue">
+
+    <Grid Margin="20,640,20,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="471*"/>
+            <ColumnDefinition Width="469*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <!-- Form row -->
+            <RowDefinition Height="Auto"/>
+            <!-- Headers row -->
+            <RowDefinition Height="Auto"/>
+            <!-- Data row -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Form to send messages -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="217,-586,0,314" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="1331">
+            <StackPanel Orientation="Horizontal" Height="82" Width="1104">
+                <TextBlock Text="Send new message" Foreground="Black" FontSize="40" FontWeight="Bold" Height="62"/>
+                <TextBox x:Name="ToTextBox" Width="200" PlaceholderText="To, example: +12025551234" Margin="5" Height="30"/>
+                <TextBox x:Name="MessageTextBox" Width="400" PlaceholderText="Message" Margin="5" Height="30"/>
+                <Button Content="Send" Click="SendButton_Click" Margin="5" Foreground="White" Background="Green"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Table headers -->
+        <StackPanel Background="blue" Width="1000" Orientation="Horizontal" Margin="0,-266,0,234" Grid.ColumnSpan="2">
+            <Button Content="To" Name="orderTo" FontWeight="Bold" Width="150" Margin="5" Foreground="White" Click="orderTo_Click"/>
+            <Button Content="Message" Name="orderMessage" FontWeight="Bold" Width="500" Margin="5" Click="orderMessage_Click"/>
+            <Button Content="Date Sent" Name="orderDate" FontWeight="Bold" Width="150" Margin="5" Click="orderDate_Click"/>
+            <Button Content="Status" Name="orderStatus" FontWeight="Bold" Width="100" Margin="5" Click="orderStatus_Click"/>
+        </StackPanel>
+
+        <!-- ListView data -->
+        <ListView Name="MessagesListView" Margin="0,-229,0,0" Grid.RowSpan="3" Grid.ColumnSpan="2"  Width="1000">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding To}" Width="150" Margin="4" Foreground="Black"/>
+                        <TextBlock Text="{Binding Message}" Width="500" Margin="4" Foreground="Black"/>
+                        <TextBlock Text="{Binding DateSent}" Width="150" Margin="5" Foreground="Black"/>
+                        <TextBlock Text="{Binding Status}" Width="100" Margin="5" Foreground="Black"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>
