@@ -4,6 +4,7 @@ using MessageSendApi.Models;
 using MessageSendApi.ViewModels;
 using MessageSendApi.Helpers;
 using DotNetEnv;
+using MessageSendApi.Services.Interfaces;
 
 namespace MessageSendApi.Controllers
 {
@@ -13,12 +14,14 @@ namespace MessageSendApi.Controllers
     {
 
         private readonly ILogger<MessagesController> _logger;
-        private readonly AppDbContext _context;
+        private readonly IMessageService _messageService;
+        private readonly ISendingService _sendingService;
 
-        public MessagesController(ILogger<MessagesController> logger, AppDbContext context)
+        public MessagesController(ILogger<MessagesController> logger, IMessageService messageService, ISendingService sendingService)
         {
             _logger = logger;
-            _context = context;
+            _messageService = messageService;
+            _sendingService = sendingService;
 
         }
 
@@ -28,19 +31,8 @@ namespace MessageSendApi.Controllers
         {
             try
             {
-                var messages = _context.Messages
-                                .Join(_context.Sendigs,
-                                    m => m.Id,
-                                    s => s.IdMessage,
-                                    (m, s) => new MessagesInfoViewModel
-                                    {
-                                        To = m.To,
-                                        Message = m.MessageBody,
-                                        DateSent = s.DateSent,
-                                        Status = s.ConfirmationCode
-                                    }).ToList();
-
-                return new OkObjectResult(messages);
+                var messages = _messageService.GetMessages();
+                return Ok(messages);
             }
             catch (Exception e)
             {
@@ -57,8 +49,7 @@ namespace MessageSendApi.Controllers
             try
             {
                 // Add Message
-                _context.Messages.Add(message);
-                await _context.SaveChangesAsync();
+                var messageCreated = await _messageService.CreateMessage(message);
 
                 var messageTwilio = await SendMessageTwilio.sendMessage(message);
 
@@ -66,21 +57,20 @@ namespace MessageSendApi.Controllers
                 var sending = new Sending
                 {
                     IdMessage = message.Id,
-                    DateSent = messageTwilio.DateCreated.HasValue? messageTwilio.DateCreated.Value.ToString("g") : DateTime.Now.ToString("g"),
+                    DateSent = messageTwilio.DateCreated.HasValue ? messageTwilio.DateCreated.Value.ToString("g") : DateTime.Now.ToString("g"),
                     ConfirmationCode = messageTwilio.Status.ToString()
                 };
 
-                _context.Sendigs.Add(sending);
-                await _context.SaveChangesAsync();
+                var sendingCreated = await _sendingService.CreateSending(sending);
 
-                return new OkObjectResult(message);
+                return Ok(messageCreated);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
                 return StatusCode(500);
             }
-           
+
         }
         #endregion
     }

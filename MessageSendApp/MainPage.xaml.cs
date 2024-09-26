@@ -97,14 +97,7 @@ namespace MessageSendApp
             }
 
             // Validate phone number (to)
-            if (!ToTextBox.Text.All(char.IsDigit))
-            {
-                var messageDialog = new MessageDialog("To must be all number", "Alert");
-                messageDialog.Commands.Add(new UICommand("OK"));
-                await messageDialog.ShowAsync();
-                return;
-            }
-            else if (!ToTextBox.Text.StartsWith('+') || ToTextBox.Text.Any(x => x == ' '))
+            if (!ToTextBox.Text.StartsWith('+') || ToTextBox.Text.Any(x => x == ' '))
             {
                 var messageDialog = new MessageDialog("To must be a valid number", "Alert");
                 messageDialog.Commands.Add(new UICommand("OK"));
