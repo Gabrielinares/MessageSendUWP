@@ -27,7 +27,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="217,-586,0,314" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="1331">
             <StackPanel Orientation="Horizontal" Height="82" Width="1104">
                 <TextBlock Text="Send new message" Foreground="Black" FontSize="40" FontWeight="Bold" Height="62"/>
-                <TextBox x:Name="ToTextBox" Width="200" PlaceholderText="To, example: +12025551234" Margin="5" Height="30"/>
+                <TextBox x:Name="ToTextBox" Width="200" PlaceholderText="+12025551234, +12025551234" Margin="5" Height="30"/>
                 <TextBox x:Name="MessageTextBox" Width="400" PlaceholderText="Message" Margin="5" Height="30"/>
                 <Button Content="Send" Click="SendButton_Click" Margin="5" Foreground="White" Background="Green"/>
             </StackPanel>

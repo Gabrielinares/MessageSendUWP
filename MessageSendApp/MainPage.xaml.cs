@@ -87,24 +87,38 @@ namespace MessageSendApp
         // Click event for Send button
         private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            // Validate inputs
-            if (string.IsNullOrEmpty(ToTextBox.Text) || string.IsNullOrEmpty(MessageTextBox.Text))
+            // Separate phone numbers by comma
+            var phoneNumbers = ToTextBox.Text.Split(',');
+            List<string> wrongNumbers = new List<string>();
+
+            // Eliminate white spaces
+            phoneNumbers = phoneNumbers.Select(x => x.Trim()).ToArray();
+
+            // Validate input message
+            if (string.IsNullOrEmpty(MessageTextBox.Text))
             {
-                var messageDialog = new MessageDialog("To or Message is required", "Alert");
+                var messageDialog = new MessageDialog("Message is required", "Alert");
                 messageDialog.Commands.Add(new UICommand("OK"));
                 await messageDialog.ShowAsync();
                 return;
             }
 
-            // Validate phone number (to)
-            if (!ToTextBox.Text.StartsWith('+') || ToTextBox.Text.Any(x => x == ' '))
+            foreach (var phoneNumber in phoneNumbers)
             {
-                var messageDialog = new MessageDialog("To must be a valid number", "Alert");
+                // Validate phone number (to)
+                if (!phoneNumber.StartsWith('+'))
+                {
+                    wrongNumbers.Add(phoneNumber);
+                }
+            }
+
+            if(wrongNumbers.Count > 0)
+            {
+                var messageDialog = new MessageDialog("Invalid phone numbers: " + string.Join(", ", wrongNumbers), "Alert");
                 messageDialog.Commands.Add(new UICommand("OK"));
                 await messageDialog.ShowAsync();
                 return;
             }
-
 
             using (var handler = new HttpClientHandler())
             {
@@ -112,41 +126,48 @@ namespace MessageSendApp
                 {
                     client.BaseAddress = apiURL;
 
-                    // Create new MessageViewModel object
-                    var message = new Message
+                    foreach (var phoneNumber in phoneNumbers)
                     {
-                        Id = 0,
-                        Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                        To = ToTextBox.Text,
-                        MessageBody = MessageTextBox.Text
-                    };
-
-                    // Serialize object to JSON
-                    var json = JsonConvert.SerializeObject(message);
-
-                    // Create HttpContent object
-                    var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-
-                    try
-                    {
-                        // Post request
-                        var response = await client.PostAsync("Messages", content);
-
-                        if (response.IsSuccessStatusCode)
+                        // Create new MessageViewModel object
+                        var message = new Message
                         {
-                            // Reload messages
-                            LoadMessagesAsync();
-                        }
-                        else
+                            Id = 0,
+                            Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                            To = phoneNumber,
+                            MessageBody = MessageTextBox.Text
+                        };
+
+                        // Serialize object to JSON
+                        var json = JsonConvert.SerializeObject(message);
+
+                        // Create HttpContent object
+                        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+                        try
                         {
-                            // Error handling
-                            System.Diagnostics.Debug.WriteLine($"Error: {response.StatusCode}");
+                            // Post request
+                            var response = await client.PostAsync("Messages", content);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                // Reload messages
+                                LoadMessagesAsync();
+
+                                // Clean input fields
+                                ToTextBox.Text = "";
+                                MessageTextBox.Text = "";
+                            }
+                            else
+                            {
+                                // Error handling
+                                System.Diagnostics.Debug.WriteLine($"Error: {response.StatusCode}");
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        // General exception handling
-                        System.Diagnostics.Debug.WriteLine($"Exception: {ex.Message}");
+                        catch (Exception ex)
+                        {
+                            // General exception handling
+                            System.Diagnostics.Debug.WriteLine($"Exception: {ex.Message}");
+                        }
                     }
                 }
             }

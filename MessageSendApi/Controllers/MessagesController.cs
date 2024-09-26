@@ -58,7 +58,7 @@ namespace MessageSendApi.Controllers
                 {
                     IdMessage = message.Id,
                     DateSent = messageTwilio.DateCreated.HasValue ? messageTwilio.DateCreated.Value.ToString("g") : DateTime.Now.ToString("g"),
-                    ConfirmationCode = messageTwilio.Status.ToString()
+                    ConfirmationCode = messageTwilio.ErrorCode != 0 ? "Sent" : "Error"
                 };
 
                 var sendingCreated = await _sendingService.CreateSending(sending);
